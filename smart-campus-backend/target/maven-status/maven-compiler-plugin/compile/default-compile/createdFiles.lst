@@ -1,7 +1,0 @@
-com\smartcampus\smart_campus_backend\config\SecurityConfig.class
-com\smartcampus\smart_campus_backend\config\WebConfig.class
-com\smartcampus\smart_campus_backend\SmartCampusBackendApplication.class
-com\smartcampus\smart_campus_backend\repository\NotificationRepository.class
-com\smartcampus\smart_campus_backend\model\Notification.class
-com\smartcampus\smart_campus_backend\service\NotificationService.class
-com\smartcampus\smart_campus_backend\controller\NotificationController.class

@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { setStoredUser } from "../utils/authStorage";
+import { getStoredUser, setStoredUser } from "../utils/authStorage";
 
 const globalStyles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap');
@@ -142,11 +142,21 @@ export default function Login() {
   const navigate = useNavigate();
   const { login, isLoggedIn } = useAuth();
 
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminError, setAdminError] = useState("");
+
+  const nextPathForUser = useMemo(() => {
+    const u = getStoredUser();
+    if (u?.role === "ADMIN") return "/admindashboard";
+    return "/dashboard";
+  }, []);
+
   useEffect(() => {
     if (isLoggedIn) {
-      navigate("/dashboard", { replace: true });
+      navigate(nextPathForUser, { replace: true });
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, nextPathForUser]);
 
   const handleLoginSuccess = (credentialResponse) => {
     const token = credentialResponse?.credential;
@@ -166,6 +176,31 @@ export default function Login() {
     } catch (err) {
       console.error("Failed to decode Google credential:", err);
     }
+  };
+
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    setAdminError("");
+
+    const u = adminUsername.trim();
+    const p = adminPassword;
+
+    if (u === "Admin1" && p === "Admin123") {
+      const adminUser = {
+        name: "Admin1",
+        email: "admin@smartcampus.local",
+        picture: "",
+        sub: "admin-1",
+        role: "ADMIN",
+        username: "Admin1",
+      };
+      setStoredUser(adminUser);
+      login();
+      navigate("/admindashboard", { replace: true });
+      return;
+    }
+
+    setAdminError("Invalid admin credentials.");
   };
 
   return (
@@ -370,6 +405,89 @@ export default function Login() {
                   shape="rectangular"
                   width={340}
                 />
+              </div>
+
+              {/* Admin Sign-In */}
+              <div style={{ marginTop: "1.35rem" }}>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 10, marginBottom: "0.9rem",
+                }}>
+                  <div style={{ flex: 1, height: 1, background: "rgba(51,65,85,0.5)" }} />
+                  <span style={{
+                    fontSize: "0.6rem", color: "#334155",
+                    fontFamily: "'DM Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase",
+                  }}>admin login</span>
+                  <div style={{ flex: 1, height: 1, background: "rgba(51,65,85,0.5)" }} />
+                </div>
+
+                <form onSubmit={handleAdminLogin} style={{ display: "grid", gap: 10 }}>
+                  <input
+                    value={adminUsername}
+                    onChange={(e) => setAdminUsername(e.target.value)}
+                    placeholder="Username (Admin1)"
+                    autoComplete="username"
+                    style={{
+                      width: "100%",
+                      padding: "11px 12px",
+                      borderRadius: 10,
+                      border: "1px solid rgba(51,65,85,0.6)",
+                      background: "rgba(2,6,23,0.55)",
+                      color: "#e2e8f0",
+                      outline: "none",
+                      fontSize: "0.85rem",
+                      fontFamily: "'DM Mono', monospace",
+                    }}
+                  />
+                  <input
+                    type="password"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder="Password (Admin123)"
+                    autoComplete="current-password"
+                    style={{
+                      width: "100%",
+                      padding: "11px 12px",
+                      borderRadius: 10,
+                      border: "1px solid rgba(51,65,85,0.6)",
+                      background: "rgba(2,6,23,0.55)",
+                      color: "#e2e8f0",
+                      outline: "none",
+                      fontSize: "0.85rem",
+                      fontFamily: "'DM Mono', monospace",
+                    }}
+                  />
+
+                  {adminError ? (
+                    <div style={{
+                      fontSize: "0.72rem",
+                      color: "#fca5a5",
+                      fontFamily: "'DM Mono', monospace",
+                      lineHeight: 1.4,
+                    }}>
+                      {adminError}
+                    </div>
+                  ) : null}
+
+                  <button
+                    type="submit"
+                    style={{
+                      width: "100%",
+                      padding: "11px 14px",
+                      borderRadius: 10,
+                      border: "1px solid rgba(99,102,241,0.35)",
+                      background: "rgba(99,102,241,0.12)",
+                      color: "#c7d2fe",
+                      fontSize: "0.82rem",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      fontFamily: "'DM Mono', monospace",
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Sign in as Admin
+                  </button>
+                </form>
               </div>
 
               {/* Security note */}

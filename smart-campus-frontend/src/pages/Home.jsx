@@ -341,7 +341,7 @@ export default function Home() {
             className="nav-links"
             style={{ display: "flex", alignItems: "center", gap: "32px" }}
           >
-            {["Home", "Features", "About"].map((link) => (
+            {["Home", "About"].map((link) => (
               <a
                 key={link}
                 href="#"

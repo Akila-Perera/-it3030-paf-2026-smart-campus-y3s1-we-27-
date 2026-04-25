@@ -1,17 +1,19 @@
+import { useState } from "react";
 import DashboardNav from "../components/DashboardNav";
+import BookingPanel from "../components/BookingPanel";
 import Notifications from "./Notifications";
 import {
   Bell,
-  BookOpen,
-  GraduationCap,
   LayoutDashboard,
   LogOut,
-  Megaphone,
   Search,
-  Settings,
+  Calendar,
+  Ticket,
 } from "lucide-react";
 
 export default function StudentDashboard({ userEmail, notificationsMountKey }) {
+  const [active, setActive] = useState("dashboard");
+
   return (
     <div className="sc-db-wrap">
       <div className="blob blob-1"></div>
@@ -46,20 +48,27 @@ export default function StudentDashboard({ userEmail, notificationsMountKey }) {
         </div>
 
         <nav style={{ flex: 1 }}>
-          <div className="sc-nav-item active">
-            <LayoutDashboard size={20} color="#38bdf8" /> Dashboard
+          <div
+            className={`sc-nav-item ${active === "dashboard" ? "active" : ""}`}
+            onClick={() => setActive("dashboard")}
+          >
+            <LayoutDashboard size={20} color={active === "dashboard" ? "#38bdf8" : undefined} />
+            Dashboard
           </div>
-          <div className="sc-nav-item">
-            <Megaphone size={20} /> Announcements
+          <div
+            className={`sc-nav-item ${active === "booking" ? "active" : ""}`}
+            onClick={() => setActive("booking")}
+          >
+            <Calendar size={20} color={active === "booking" ? "#38bdf8" : undefined} />
+            Booking
           </div>
-          <div className="sc-nav-item">
-            <BookOpen size={20} /> Study Planner
-          </div>
-          <div className="sc-nav-item">
-            <GraduationCap size={20} /> Academics
-          </div>
-          <div className="sc-nav-item">
-            <Settings size={20} /> Settings
+
+          <div
+            className="sc-nav-item"
+            style={{ marginLeft: 18, paddingLeft: 14, opacity: 0.7, cursor: "default" }}
+          >
+            <Ticket size={18} />
+            Ticket
           </div>
         </nav>
 
@@ -127,43 +136,26 @@ export default function StudentDashboard({ userEmail, notificationsMountKey }) {
           <DashboardNav userEmail={userEmail} />
         </div>
 
-        <div
-          className="glass-card"
-          style={{
-            marginBottom: "24px",
-            background:
-              "linear-gradient(135deg, rgba(14,165,233,0.2), rgba(245,158,11,0.12))",
-            border: "1px solid rgba(125,211,252,0.28)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <GraduationCap size={20} color="#7dd3fc" />
-            <h2 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#e0f2fe" }}>
-              Student Space
+        {active === "dashboard" ? (
+          <div className="glass-card" style={{ width: "100%" }}>
+            <h2
+              style={{
+                fontSize: "1.1rem",
+                fontWeight: 700,
+                marginBottom: "24px",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              Campus Feed
             </h2>
+
+            <Notifications key={notificationsMountKey} isLecturer={false} />
           </div>
-          <p style={{ margin: "8px 0 0", color: "#bae6fd", fontSize: "0.88rem" }}>
-            Track announcements, stay updated with course notices, and focus on your next tasks.
-          </p>
-        </div>
+        ) : null}
 
-        <div className="glass-card" style={{ width: "100%" }}>
-          <h2
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: 700,
-              marginBottom: "24px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-            }}
-          >
-            <Megaphone size={20} color="#38bdf8" />
-            Campus Feed
-          </h2>
-
-          <Notifications key={notificationsMountKey} isLecturer={false} />
-        </div>
+        {active === "booking" ? <BookingPanel /> : null}
       </main>
     </div>
   );

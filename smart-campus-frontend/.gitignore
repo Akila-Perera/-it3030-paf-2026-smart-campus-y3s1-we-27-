@@ -24,12 +24,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Java class files and build output
-target/
-*.class
-**/target/
-**/*.class
-
-# Backend specific
-smart-campus-backend/target/
-*.class
+# Environment variables
+.env
+.env.local
+.env.*.local

@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
+import { useAuth } from '../context/AuthContext';
 import './TicketAdminDashboard.css';
 
 const TicketAdminDashboard = () => {
+    const { user, isLoggedIn } = useAuth();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    const userId = 'admin@example.com';
-    const userRole = 'ADMIN';
+    // Map role from auth
+    const mapRole = (role) => {
+        switch(role) {
+            case 'STUDENT': return 'USER';
+            case 'LECTURER': return 'TECHNICIAN';
+            case 'ADMIN': return 'ADMIN';
+            default: return 'USER';
+        }
+    };
+    
+    const userId = user?.email;
+    const userRole = mapRole(user?.role);
     
     useEffect(() => {
-        loadTickets();
-    }, []);
+        if (isLoggedIn && userRole === 'ADMIN') {
+            loadTickets();
+        }
+    }, [isLoggedIn]);
     
     const loadTickets = async () => {
         setLoading(true);
@@ -47,7 +61,6 @@ const TicketAdminDashboard = () => {
         }
     };
     
-    // UPDATED STATS - 6 separate stats
     const stats = {
         total: tickets.length,
         open: tickets.filter(t => t.status === 'OPEN').length,
@@ -81,11 +94,11 @@ const TicketAdminDashboard = () => {
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 5);
     
-    const maxStatusCount = Math.max(...Object.values(statusDistribution));
-    const maxPriorityCount = Math.max(...Object.values(priorityDistribution));
-    const maxCategoryCount = Math.max(...Object.values(categoryDistribution));
+    const maxStatusCount = Math.max(...Object.values(statusDistribution), 1);
+    const maxPriorityCount = Math.max(...Object.values(priorityDistribution), 1);
+    const maxCategoryCount = Math.max(...Object.values(categoryDistribution), 1);
     
-    if (loading) {
+    if (loading || !isLoggedIn) {
         return (
             <div className="spinner-container">
                 <div className="spinner"></div>
@@ -93,15 +106,24 @@ const TicketAdminDashboard = () => {
         );
     }
     
+    if (userRole !== 'ADMIN') {
+        return (
+            <div className="dashboard-container">
+                <div className="empty-state">
+                    <div className="empty-icon">🔒</div>
+                    <p className="empty-text">Access denied. Admin only.</p>
+                </div>
+            </div>
+        );
+    }
+    
     return (
         <div className="dashboard-container">
-            {/* Header */}
             <div className="dashboard-header">
                 <h1 className="dashboard-title">Ticket Analytics Dashboard</h1>
                 <p className="dashboard-subtitle">Complete overview of all tickets and system analytics</p>
             </div>
             
-            {/* Stats Cards - ALL 6 IN ONE ROW */}
             <div className="stats-grid">
                 <div className="stat-card total">
                     <div className="stat-header">
@@ -147,9 +169,7 @@ const TicketAdminDashboard = () => {
                 </div>
             </div>
             
-            {/* Charts Row */}
             <div className="charts-row">
-                {/* Status Distribution */}
                 <div className="chart-card">
                     <div className="chart-title">
                         <span>📈</span> Tickets by Status
@@ -173,7 +193,6 @@ const TicketAdminDashboard = () => {
                     </div>
                 </div>
                 
-                {/* Priority Distribution */}
                 <div className="chart-card">
                     <div className="chart-title">
                         <span>⚠️</span> Tickets by Priority
@@ -203,7 +222,6 @@ const TicketAdminDashboard = () => {
                 </div>
             </div>
             
-            {/* Category Distribution */}
             <div className="section-card">
                 <div className="section-header">
                     <div className="section-title">
@@ -228,7 +246,6 @@ const TicketAdminDashboard = () => {
                 </div>
             </div>
             
-            {/* Recent Tickets */}
             <div className="recent-section">
                 <div className="recent-header">
                     <div className="recent-title">

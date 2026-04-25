@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
+import { useAuth } from '../context/AuthContext';
 import './TicketsPage.css';
 
 const TicketsPage = () => {
+    const { user, isLoggedIn } = useAuth();
     const [tickets, setTickets] = useState([]);
     const [filteredTickets, setFilteredTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,14 +15,25 @@ const TicketsPage = () => {
         priority: ''
     });
     
-    const userId = 'test@email.com';
-    const userRole = 'ADMIN';
+    // Map role from auth (STUDENT -> USER, LECTURER -> TECHNICIAN)
+    const mapRole = (role) => {
+        switch(role) {
+            case 'STUDENT': return 'USER';
+            case 'LECTURER': return 'TECHNICIAN';
+            case 'ADMIN': return 'ADMIN';
+            default: return 'USER';
+        }
+    };
+    
+    const userId = user?.email;
+    const userRole = mapRole(user?.role);
     
     useEffect(() => {
-        loadTickets();
-    }, []);
+        if (isLoggedIn && userId) {
+            loadTickets();
+        }
+    }, [isLoggedIn, userId]);
     
-    // Apply filters whenever tickets or filters change
     useEffect(() => {
         applyFilters();
     }, [tickets, filters]);
@@ -40,17 +53,14 @@ const TicketsPage = () => {
     const applyFilters = () => {
         let filtered = [...tickets];
         
-        // Filter by status
         if (filters.status && filters.status !== '') {
             filtered = filtered.filter(ticket => ticket.status === filters.status);
         }
         
-        // Filter by category
         if (filters.category && filters.category !== '') {
             filtered = filtered.filter(ticket => ticket.category === filters.category);
         }
         
-        // Filter by priority
         if (filters.priority && filters.priority !== '') {
             filtered = filtered.filter(ticket => ticket.priority === filters.priority);
         }
@@ -96,7 +106,6 @@ const TicketsPage = () => {
         }
     };
     
-    // UPDATED STATS - Separate RESOLVED and CLOSED
     const stats = {
         total: filteredTickets.length,
         open: filteredTickets.filter(t => t.status === 'OPEN').length,
@@ -106,7 +115,7 @@ const TicketsPage = () => {
         rejected: filteredTickets.filter(t => t.status === 'REJECTED').length
     };
     
-    if (loading) {
+    if (loading || !isLoggedIn) {
         return (
             <div className="spinner-container">
                 <div className="spinner"></div>
@@ -116,7 +125,6 @@ const TicketsPage = () => {
     
     return (
         <div className="tickets-container">
-            {/* Header */}
             <div className="tickets-header">
                 <div>
                     <h1 className="tickets-title">Tickets</h1>
@@ -127,7 +135,6 @@ const TicketsPage = () => {
                 </Link>
             </div>
             
-            {/* Stats - 6 Cards for Full Workflow */}
             <div className="stats-grid">
                 <div className="stat-card">
                     <p className="stat-label">Total</p>
@@ -155,7 +162,6 @@ const TicketsPage = () => {
                 </div>
             </div>
             
-            {/* Filters */}
             <div className="filters-bar">
                 <div className="filters-group">
                     <select
@@ -197,17 +203,13 @@ const TicketsPage = () => {
                     </select>
                     
                     {hasActiveFilters && (
-                        <button
-                            onClick={clearAllFilters}
-                            className="clear-filters"
-                        >
+                        <button onClick={clearAllFilters} className="clear-filters">
                             Clear all filters
                         </button>
                     )}
                 </div>
             </div>
             
-            {/* Active Filters Display */}
             {hasActiveFilters && (
                 <div className="active-filters">
                     <span className="active-filters-label">Active filters:</span>
@@ -232,7 +234,6 @@ const TicketsPage = () => {
                 </div>
             )}
             
-            {/* Tickets List */}
             {filteredTickets.length === 0 && (
                 <div className="empty-state">
                     <div className="empty-icon">🔍</div>

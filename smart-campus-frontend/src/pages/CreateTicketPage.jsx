@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
+import { useAuth } from '../context/AuthContext';
 import './CreateTicketPage.css';
 
 const CreateTicketPage = () => {
+    const { user, isLoggedIn } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [attachments, setAttachments] = useState([]);
@@ -18,7 +20,8 @@ const CreateTicketPage = () => {
         preferredContact: ''
     });
     
-    const userId = 'test@email.com';
+    // Get userId from auth
+    const userId = user?.email;
     
     const handleChange = (e) => {
         setFormData({
@@ -50,6 +53,12 @@ const CreateTicketPage = () => {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!userId) {
+            alert('Please login first');
+            return;
+        }
+        
         setLoading(true);
         
         const data = new FormData();
@@ -76,6 +85,16 @@ const CreateTicketPage = () => {
         }
     };
     
+    if (!isLoggedIn) {
+        return (
+            <div className="create-ticket-container">
+                <div className="form-card">
+                    <p>Please login to create a ticket.</p>
+                </div>
+            </div>
+        );
+    }
+    
     return (
         <div className="create-ticket-container">
             <div className="page-header">
@@ -85,7 +104,6 @@ const CreateTicketPage = () => {
             
             <div className="form-card">
                 <form onSubmit={handleSubmit}>
-                    {/* Resource ID */}
                     <div className="form-group">
                         <label className="form-label form-label-required">Resource ID</label>
                         <input
@@ -99,7 +117,6 @@ const CreateTicketPage = () => {
                         />
                     </div>
                     
-                    {/* Location */}
                     <div className="form-group">
                         <label className="form-label">Location</label>
                         <input
@@ -112,7 +129,6 @@ const CreateTicketPage = () => {
                         />
                     </div>
                     
-                    {/* Category and Priority Row */}
                     <div className="form-row">
                         <div className="form-group">
                             <label className="form-label form-label-required">Category</label>
@@ -149,7 +165,6 @@ const CreateTicketPage = () => {
                         </div>
                     </div>
                     
-                    {/* Description */}
                     <div className="form-group">
                         <label className="form-label form-label-required">Description</label>
                         <textarea
@@ -162,7 +177,6 @@ const CreateTicketPage = () => {
                         />
                     </div>
                     
-                    {/* Preferred Contact */}
                     <div className="form-group">
                         <label className="form-label">Preferred Contact (Email)</label>
                         <input
@@ -175,7 +189,6 @@ const CreateTicketPage = () => {
                         />
                     </div>
                     
-                    {/* Attachments */}
                     <div className="form-group">
                         <label className="form-label">Attachments (Max 3 images)</label>
                         <div 
@@ -199,7 +212,6 @@ const CreateTicketPage = () => {
                             {attachments.length}/3 files selected
                         </div>
                         
-                        {/* Image Previews */}
                         {previewUrls.length > 0 && (
                             <div className="previews-container">
                                 {previewUrls.map((url, index) => (
@@ -218,7 +230,6 @@ const CreateTicketPage = () => {
                         )}
                     </div>
                     
-                    {/* Submit Button */}
                     <button
                         type="submit"
                         disabled={loading}

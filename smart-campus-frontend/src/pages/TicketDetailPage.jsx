@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
+import { useAuth } from '../context/AuthContext';
 import './TicketDetailPage.css';
 
 const TicketDetailPage = () => {
+    const { user, isLoggedIn } = useAuth();
     const { ticketId } = useParams();
     const navigate = useNavigate();
     const [ticket, setTicket] = useState(null);
@@ -18,15 +20,27 @@ const TicketDetailPage = () => {
         rejectedReason: '' 
     });
     const [showStatusModal, setShowStatusModal] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null); // NEW: For image modal
+    const [selectedImage, setSelectedImage] = useState(null);
     
-    const userId = 'test@email.com';
-    const userRole = 'ADMIN';
+    // Map role from auth
+    const mapRole = (role) => {
+        switch(role) {
+            case 'STUDENT': return 'USER';
+            case 'LECTURER': return 'TECHNICIAN';
+            case 'ADMIN': return 'ADMIN';
+            default: return 'USER';
+        }
+    };
+    
+    const userId = user?.email;
+    const userRole = mapRole(user?.role);
     
     useEffect(() => {
-        loadTicketDetails();
-        loadComments();
-    }, [ticketId]);
+        if (isLoggedIn && ticketId) {
+            loadTicketDetails();
+            loadComments();
+        }
+    }, [ticketId, isLoggedIn]);
     
     const loadTicketDetails = async () => {
         try {
@@ -152,7 +166,7 @@ const TicketDetailPage = () => {
         }
     };
     
-    if (loading || !ticket) {
+    if (loading || !ticket || !isLoggedIn) {
         return (
             <div className="spinner-container">
                 <div className="spinner"></div>
@@ -160,14 +174,15 @@ const TicketDetailPage = () => {
         );
     }
     
+    const isAdmin = userRole === 'ADMIN';
+    const isTechnician = userRole === 'TECHNICIAN';
+    
     return (
         <div className="detail-container">
-            {/* Back Button */}
             <Link to="/tickets" className="back-button">
                 ← Back to Tickets
             </Link>
             
-            {/* Ticket Card */}
             <div className="ticket-card">
                 <div className="ticket-header">
                     <div>
@@ -225,7 +240,6 @@ const TicketDetailPage = () => {
                     </div>
                 </div>
                 
-                {/* Resolution Notes */}
                 {ticket.resolutionNotes && (
                     <div className="resolution-box">
                         <span className="resolution-label">Resolution Notes</span>
@@ -233,7 +247,6 @@ const TicketDetailPage = () => {
                     </div>
                 )}
                 
-                {/* Rejection Reason */}
                 {ticket.rejectedReason && (
                     <div className="rejection-box">
                         <span className="rejection-label">Rejection Reason</span>
@@ -241,7 +254,6 @@ const TicketDetailPage = () => {
                     </div>
                 )}
                 
-                {/* Attachments Section - NEW */}
                 {ticket.attachmentList && ticket.attachmentList.length > 0 && (
                     <div className="attachments-section">
                         <div className="attachments-title">
@@ -268,13 +280,12 @@ const TicketDetailPage = () => {
                     </div>
                 )}
                 
-                {/* Action Buttons */}
-                {(userRole === 'ADMIN' || userRole === 'TECHNICIAN') && (
+                {(isAdmin || isTechnician) && (
                     <div className="button-group">
                         <button onClick={() => setShowStatusModal(true)} className="btn-primary">
                             Update Status
                         </button>
-                        {userRole === 'ADMIN' && !ticket.assignedTo && (
+                        {isAdmin && !ticket.assignedTo && (
                             <button onClick={handleAssignTechnician} className="btn-secondary">
                                 Assign Technician
                             </button>
@@ -283,11 +294,9 @@ const TicketDetailPage = () => {
                 )}
             </div>
             
-            {/* Comments Section */}
             <div className="comments-section">
                 <h3 className="comments-title">Comments</h3>
                 
-                {/* Add Comment */}
                 <div className="add-comment-form">
                     <textarea
                         rows="3"
@@ -301,7 +310,6 @@ const TicketDetailPage = () => {
                     </button>
                 </div>
                 
-                {/* Comments List */}
                 <div className="comments-list">
                     {comments.map((comment) => (
                         <div key={comment.id} className="comment-item">
@@ -372,7 +380,6 @@ const TicketDetailPage = () => {
                 </div>
             </div>
             
-            {/* Status Update Modal */}
             {showStatusModal && (
                 <div className="modal-overlay" onClick={() => setShowStatusModal(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -420,7 +427,6 @@ const TicketDetailPage = () => {
                 </div>
             )}
             
-            {/* Image Modal - NEW */}
             {selectedImage && (
                 <div className="image-modal" onClick={() => setSelectedImage(null)}>
                     <span className="close-modal">&times;</span>

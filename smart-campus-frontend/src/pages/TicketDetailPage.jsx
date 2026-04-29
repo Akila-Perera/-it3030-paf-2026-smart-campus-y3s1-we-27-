@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
 import { useAuth } from '../context/AuthContext';
 import './TicketDetailPage.css';
@@ -22,7 +22,6 @@ const TicketDetailPage = () => {
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     
-    // Map role from auth
     const mapRole = (role) => {
         switch(role) {
             case 'STUDENT': return 'USER';
@@ -70,7 +69,6 @@ const TicketDetailPage = () => {
     
     const handleAddComment = async () => {
         if (!newComment.trim()) return;
-        
         try {
             await ticketService.addComment(ticketId, newComment, userId, userRole);
             setNewComment('');
@@ -126,7 +124,6 @@ const TicketDetailPage = () => {
     const handleAssignTechnician = async () => {
         const technicianEmail = prompt('Enter technician email address:');
         if (!technicianEmail) return;
-        
         try {
             await ticketService.assignTechnician(ticketId, technicianEmail, userRole);
             alert('Technician assigned successfully!');
@@ -179,9 +176,14 @@ const TicketDetailPage = () => {
     
     return (
         <div className="detail-container">
-            <Link to="/tickets" className="back-button">
-                ← Back to Tickets
-            </Link>
+
+            {/* ← Back Button */}
+            <button
+                onClick={() => navigate(-1)}
+                className="back-home-btn"
+            >
+                ← Back
+            </button>
             
             <div className="ticket-card">
                 <div className="ticket-header">
@@ -352,16 +354,10 @@ const TicketDetailPage = () => {
                                         onChange={(e) => setEditingContent(e.target.value)}
                                     />
                                     <div className="edit-buttons">
-                                        <button 
-                                            onClick={() => handleEditComment(comment.id)}
-                                            className="btn-save"
-                                        >
+                                        <button onClick={() => handleEditComment(comment.id)} className="btn-save">
                                             Save
                                         </button>
-                                        <button 
-                                            onClick={() => setEditingCommentId(null)}
-                                            className="btn-cancel"
-                                        >
+                                        <button onClick={() => setEditingCommentId(null)} className="btn-cancel">
                                             Cancel
                                         </button>
                                     </div>

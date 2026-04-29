@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { Shield, Bell, Users, ArrowRight, ChevronDown } from "lucide-react";
+import { Shield, Bell, Users, ArrowRight, ChevronDown, Ticket } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 /* ─────────────────────────────────────────────
    Tiny CSS-in-JS helper – no extra deps needed
@@ -197,7 +198,28 @@ function Counter({ target, suffix = "" }) {
    Main Component
 ───────────────────────────────────────────── */
 export default function Home() {
+  const navigate = useNavigate();
+  const { isLoggedIn, user } = useAuth(); // ← Added user here
   useGlobalStyles();
+
+  // Handle ticket button click - redirect based on user role
+  const handleTicketClick = () => {
+    if (!isLoggedIn) {
+      // Not logged in - go to login page
+      navigate("/login", { state: { from: "/tickets" } });
+      return;
+    }
+    
+    // Get user role from auth
+    const userRole = user?.role;
+    
+    // Admin goes to admin dashboard, others go to tickets page
+    if (userRole === 'ADMIN') {
+      navigate("/admindashboard");
+    } else {
+      navigate("/tickets");
+    }
+  };
 
   const features = [
     {
@@ -282,7 +304,7 @@ export default function Home() {
       />
 
       {/* ══════════════════════════════════
-          NAVBAR
+          NAVBAR - WITHOUT TICKET BUTTON
       ══════════════════════════════════ */}
       <nav
         className="fade-in-nav"
@@ -336,55 +358,68 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Nav links */}
+          {/* Nav links - No Ticket button here */}
           <div
             className="nav-links"
             style={{ display: "flex", alignItems: "center", gap: "32px" }}
           >
-            {["Home", "Features", "About"].map((link) => (
-              <a
-                key={link}
-                href="#"
-                style={{
-                  color: "#94a3b8",
-                  textDecoration: "none",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  letterSpacing: "0.01em",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) => (e.target.style.color = "#e2e8f0")}
-                onMouseLeave={(e) => (e.target.style.color = "#94a3b8")}
-              >
-                {link}
-              </a>
-            ))}
+            <Link
+              to="/"
+              style={{
+                color: "#94a3b8",
+                textDecoration: "none",
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                letterSpacing: "0.01em",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.target.style.color = "#e2e8f0")}
+              onMouseLeave={(e) => (e.target.style.color = "#94a3b8")}
+            >
+              Home
+            </Link>
+            <Link
+              to="/about"
+              style={{
+                color: "#94a3b8",
+                textDecoration: "none",
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                letterSpacing: "0.01em",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.target.style.color = "#e2e8f0")}
+              onMouseLeave={(e) => (e.target.style.color = "#94a3b8")}
+            >
+              About
+            </Link>
           </div>
 
-          {/* CTA */}
-          <Link
-            to="/login"
-            className="nav-login-btn"
-            style={{
-              border: "none",
-              color: "#fff",
-              fontFamily: "inherit",
-              fontWeight: 700,
-              fontSize: "0.83rem",
-              letterSpacing: "0.03em",
-              borderRadius: "10px",
-              padding: "9px 20px",
-              cursor: "pointer",
-              background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)",
-              boxShadow: "0 4px 20px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
-              position: "relative",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-            }}
-          >
-            Login →
-          </Link>
+          {/* CTA Buttons - Only Login button now */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <Link
+              to="/login"
+              className="nav-login-btn"
+              style={{
+                border: "none",
+                color: "#fff",
+                fontFamily: "inherit",
+                fontWeight: 700,
+                fontSize: "0.83rem",
+                letterSpacing: "0.03em",
+                borderRadius: "10px",
+                padding: "9px 20px",
+                cursor: "pointer",
+                background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)",
+                boxShadow: "0 4px 20px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              Login →
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -446,10 +481,7 @@ export default function Home() {
           >
             <span style={{ color: "#f8fafc" }}>Your Campus,</span>
             <br />
-            <span
-              className="grad-text"
-              style={{ fontStyle: "normal" }}
-            >
+            <span className="grad-text" style={{ fontStyle: "normal" }}>
               Unified.
             </span>
           </h1>
@@ -473,7 +505,7 @@ export default function Home() {
             <span style={{ color: "#a5b4fc", fontWeight: 500 }}>secure dashboard</span>.
           </p>
 
-          {/* CTA Buttons */}
+          {/* Hero CTA Buttons */}
           <div
             className="fade-up-4 hero-btns"
             style={{
@@ -484,6 +516,33 @@ export default function Home() {
               marginTop: "44px",
             }}
           >
+            {/* Ticket Button in Hero Section */}
+            <button
+              onClick={handleTicketClick}
+              className="btn-primary"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                border: "none",
+                color: "#fff",
+                fontFamily: "inherit",
+                fontWeight: 700,
+                fontSize: "0.95rem",
+                borderRadius: "14px",
+                padding: "14px 28px",
+                cursor: "pointer",
+                background:
+                  "linear-gradient(135deg, #8b5cf6 0%, #a855f7 55%, #db2777 100%)",
+                boxShadow:
+                  "0 8px 32px rgba(139,92,246,0.5), inset 0 1px 0 rgba(255,255,255,0.18)",
+                textDecoration: "none",
+              }}
+            >
+              <Ticket size={18} />
+              View Tickets
+            </button>
+
             <Link
               to="/login"
               className="btn-primary"
@@ -509,28 +568,6 @@ export default function Home() {
               Get Started Free
               <ArrowRight size={16} />
             </Link>
-
-            <button
-              type="button"
-              className="btn-ghost"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                background: "transparent",
-                color: "#94a3b8",
-                fontFamily: "inherit",
-                fontWeight: 600,
-                fontSize: "0.95rem",
-                borderRadius: "14px",
-                padding: "13px 28px",
-                cursor: "pointer",
-                border: "1px solid rgba(148,163,184,0.2)",
-              }}
-            >
-              Learn More
-              <ChevronDown size={15} />
-            </button>
           </div>
 
           {/* Social proof strip */}
@@ -544,7 +581,6 @@ export default function Home() {
               marginTop: "36px",
             }}
           >
-            {/* Avatars */}
             <div style={{ display: "flex" }}>
               {["#6366f1", "#38bdf8", "#a78bfa", "#f472b6"].map((bg, i) => (
                 <div
@@ -602,8 +638,7 @@ export default function Home() {
                 style={{
                   textAlign: "center",
                   padding: "8px 24px",
-                  borderRight:
-                    i < 2 ? "1px solid rgba(148,163,184,0.1)" : "none",
+                  borderRight: i < 2 ? "1px solid rgba(148,163,184,0.1)" : "none",
                 }}
               >
                 <div
@@ -644,7 +679,6 @@ export default function Home() {
             padding: "0 24px 120px",
           }}
         >
-          {/* Section header */}
           <div style={{ textAlign: "center", marginBottom: "52px" }}>
             <p
               style={{
@@ -672,7 +706,6 @@ export default function Home() {
             </h2>
           </div>
 
-          {/* Cards */}
           <div
             className="features-grid"
             style={{
@@ -697,7 +730,6 @@ export default function Home() {
                   overflow: "hidden",
                 }}
               >
-                {/* Subtle top glow */}
                 <div
                   style={{
                     position: "absolute",
@@ -709,7 +741,6 @@ export default function Home() {
                   }}
                 />
 
-                {/* Icon */}
                 <div
                   className="icon-wrap"
                   style={{
@@ -728,7 +759,6 @@ export default function Home() {
                   {feat.icon}
                 </div>
 
-                {/* Label */}
                 <span
                   style={{
                     display: "inline-block",
@@ -797,7 +827,6 @@ export default function Home() {
               boxShadow: "0 24px 80px rgba(99,102,241,0.12)",
             }}
           >
-            {/* BG radial */}
             <div
               style={{
                 position: "absolute",
@@ -862,7 +891,6 @@ export default function Home() {
                   "linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%)",
                 boxShadow:
                   "0 8px 32px rgba(99,102,241,0.5), inset 0 1px 0 rgba(255,255,255,0.18)",
-                position: "relative",
                 textDecoration: "none",
               }}
             >
@@ -872,9 +900,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══════════════════════════════════
-            FOOTER
-        ══════════════════════════════════ */}
         <footer
           style={{
             borderTop: "1px solid rgba(148,163,184,0.08)",

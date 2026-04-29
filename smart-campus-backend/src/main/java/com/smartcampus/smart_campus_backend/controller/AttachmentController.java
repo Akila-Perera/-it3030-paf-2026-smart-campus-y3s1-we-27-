@@ -39,7 +39,6 @@ public class AttachmentController {
             
             Attachment attachment = attachmentOpt.get();
             
-            // Check authorization
             Optional<Ticket> ticketOpt = ticketRepository.findById(attachment.getTicketId());
             if (ticketOpt.isEmpty()) {
                 return ResponseEntity.notFound().build();
@@ -47,21 +46,17 @@ public class AttachmentController {
             
             Ticket ticket = ticketOpt.get();
             
-            // TECHNICIAN can only see tickets assigned to them
             if ("TECHNICIAN".equals(role)) {
                 if (ticket.getAssignedTo() == null || !ticket.getAssignedTo().equals(userId)) {
                     return ResponseEntity.status(403).body("Access denied");
                 }
             }
             
-            // USER can only see their own tickets
             if ("USER".equals(role)) {
                 if (!ticket.getCreatedBy().equals(userId)) {
                     return ResponseEntity.status(403).body("Access denied");
                 }
             }
-            
-            // ADMIN can see all (no restriction)
             
             Path filePath = Paths.get(attachment.getFilePath());
             Resource resource = new UrlResource(filePath.toUri());

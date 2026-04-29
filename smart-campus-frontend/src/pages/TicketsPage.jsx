@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
 import { useAuth } from '../context/AuthContext';
 import './TicketsPage.css';
 
 const TicketsPage = () => {
+    const navigate = useNavigate();
     const { user, isLoggedIn } = useAuth();
     const [tickets, setTickets] = useState([]);
     const [filteredTickets, setFilteredTickets] = useState([]);
@@ -15,7 +16,6 @@ const TicketsPage = () => {
         priority: ''
     });
     
-    // Map role from auth (STUDENT -> USER, LECTURER -> TECHNICIAN)
     const mapRole = (role) => {
         switch(role) {
             case 'STUDENT': return 'USER';
@@ -52,35 +52,18 @@ const TicketsPage = () => {
     
     const applyFilters = () => {
         let filtered = [...tickets];
-        
-        if (filters.status && filters.status !== '') {
-            filtered = filtered.filter(ticket => ticket.status === filters.status);
-        }
-        
-        if (filters.category && filters.category !== '') {
-            filtered = filtered.filter(ticket => ticket.category === filters.category);
-        }
-        
-        if (filters.priority && filters.priority !== '') {
-            filtered = filtered.filter(ticket => ticket.priority === filters.priority);
-        }
-        
+        if (filters.status) filtered = filtered.filter(t => t.status === filters.status);
+        if (filters.category) filtered = filtered.filter(t => t.category === filters.category);
+        if (filters.priority) filtered = filtered.filter(t => t.priority === filters.priority);
         setFilteredTickets(filtered);
     };
     
     const handleFilterChange = (filterType, value) => {
-        setFilters(prev => ({
-            ...prev,
-            [filterType]: value
-        }));
+        setFilters(prev => ({ ...prev, [filterType]: value }));
     };
     
     const clearAllFilters = () => {
-        setFilters({
-            status: '',
-            category: '',
-            priority: ''
-        });
+        setFilters({ status: '', category: '', priority: '' });
     };
     
     const hasActiveFilters = filters.status !== '' || filters.category !== '' || filters.priority !== '';
@@ -125,6 +108,15 @@ const TicketsPage = () => {
     
     return (
         <div className="tickets-container">
+
+            {/* ← Back Button */}
+            <button
+                onClick={() => navigate(-1)}
+                className="back-home-btn"
+            >
+                ← Back
+            </button>
+
             <div className="tickets-header">
                 <div>
                     <h1 className="tickets-title">Tickets</h1>
@@ -164,11 +156,7 @@ const TicketsPage = () => {
             
             <div className="filters-bar">
                 <div className="filters-group">
-                    <select
-                        className="filter-select"
-                        value={filters.status}
-                        onChange={(e) => handleFilterChange('status', e.target.value)}
-                    >
+                    <select className="filter-select" value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)}>
                         <option value="">All Status</option>
                         <option value="OPEN">Open</option>
                         <option value="IN_PROGRESS">In Progress</option>
@@ -177,11 +165,7 @@ const TicketsPage = () => {
                         <option value="REJECTED">Rejected</option>
                     </select>
                     
-                    <select
-                        className="filter-select"
-                        value={filters.category}
-                        onChange={(e) => handleFilterChange('category', e.target.value)}
-                    >
+                    <select className="filter-select" value={filters.category} onChange={(e) => handleFilterChange('category', e.target.value)}>
                         <option value="">All Categories</option>
                         <option value="Hardware">Hardware</option>
                         <option value="Software">Software</option>
@@ -190,11 +174,7 @@ const TicketsPage = () => {
                         <option value="Other">Other</option>
                     </select>
                     
-                    <select
-                        className="filter-select"
-                        value={filters.priority}
-                        onChange={(e) => handleFilterChange('priority', e.target.value)}
-                    >
+                    <select className="filter-select" value={filters.priority} onChange={(e) => handleFilterChange('priority', e.target.value)}>
                         <option value="">All Priorities</option>
                         <option value="LOW">Low</option>
                         <option value="MEDIUM">Medium</option>
@@ -203,9 +183,7 @@ const TicketsPage = () => {
                     </select>
                     
                     {hasActiveFilters && (
-                        <button onClick={clearAllFilters} className="clear-filters">
-                            Clear all filters
-                        </button>
+                        <button onClick={clearAllFilters} className="clear-filters">Clear all filters</button>
                     )}
                 </div>
             </div>
@@ -267,9 +245,7 @@ const TicketsPage = () => {
                                     )}
                                 </div>
                                 
-                                <p className="ticket-description">
-                                    {ticket.description}
-                                </p>
+                                <p className="ticket-description">{ticket.description}</p>
                                 
                                 <div className="ticket-footer">
                                     <span>📅 {new Date(ticket.createdAt).toLocaleDateString()}</span>

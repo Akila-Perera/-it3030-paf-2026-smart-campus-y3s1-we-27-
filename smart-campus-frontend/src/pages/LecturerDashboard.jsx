@@ -1,13 +1,14 @@
+import { useState } from "react";
 import DashboardNav from "../components/DashboardNav";
+import BookingPanel from "../components/BookingPanel";
 import NotificationForm from "../components/NotificationForm";
 import Notifications from "./Notifications";
 import {
   Bell,
+  Calendar,
   LayoutDashboard,
-  LogOut,
   Megaphone,
   Search,
-  Settings,
 } from "lucide-react";
 
 export default function LecturerDashboard({
@@ -16,6 +17,8 @@ export default function LecturerDashboard({
   listRefreshTrigger,
   onNotificationSent,
 }) {
+  const [active, setActive] = useState("dashboard");
+
   return (
     <div className="sc-db-wrap">
       <div className="blob blob-1"></div>
@@ -50,23 +53,24 @@ export default function LecturerDashboard({
         </div>
 
         <nav style={{ flex: 1 }}>
-          <div className="sc-nav-item active">
-            <LayoutDashboard size={20} /> Dashboard
+          <div
+            className={`sc-nav-item ${active === "dashboard" ? "active" : ""}`}
+            onClick={() => setActive("dashboard")}
+          >
+            <LayoutDashboard size={20} color={active === "dashboard" ? "#a78bfa" : undefined} />
+            Dashboard
           </div>
-          <div className="sc-nav-item">
-            <Megaphone size={20} /> Announcements
+          <div
+            className={`sc-nav-item ${active === "booking" ? "active" : ""}`}
+            onClick={() => setActive("booking")}
+          >
+            <Calendar size={20} color={active === "booking" ? "#a78bfa" : undefined} />
+            Booking
           </div>
-          <div className="sc-nav-item">
-            <Settings size={20} /> Settings
-          </div>
+          {/* REMOVED Ticket button - not connected to lecturer */}
         </nav>
 
-        <div className="sidebar-bottom">
-          <div className="sc-nav-item logout-btn">
-            <LogOut size={20} />
-            <span>Logout</span>
-          </div>
-        </div>
+        {/* Removed duplicate logout button */}
       </aside>
 
       <main className="sc-main-content">
@@ -125,57 +129,61 @@ export default function LecturerDashboard({
           <DashboardNav userEmail={userEmail} />
         </div>
 
-        <div className="sc-dashboard-grid">
-          <div className="glass-card">
-            <h2
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: 700,
-                marginBottom: "24px",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <Megaphone size={20} color="#6366f1" />
-              Campus Feed
-            </h2>
-
-            <Notifications
-              key={notificationsMountKey}
-              isLecturer={true}
-              refreshTrigger={listRefreshTrigger}
-            />
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <div
-              className="glass-card"
-              style={{ border: "1px solid rgba(99,102,241,0.2)" }}
-            >
-              <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "20px" }}>
-                New Notification
-              </h3>
-              <NotificationForm onNotificationSent={onNotificationSent} />
-            </div>
-
-            <div className="glass-card" style={{ padding: "20px" }}>
-              <h4
+        {active === "dashboard" ? (
+          <div className="sc-dashboard-grid">
+            <div className="glass-card">
+              <h2
                 style={{
-                  fontSize: "0.85rem",
-                  color: "#64748b",
-                  textTransform: "uppercase",
-                  marginBottom: "10px",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  marginBottom: "24px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
                 }}
               >
-                Support
-              </h4>
-              <p style={{ fontSize: "0.8rem", color: "#94a3b8", margin: 0 }}>
-                Contact admin for help.
-              </p>
+                <Megaphone size={20} color="#6366f1" />
+                Campus Feed
+              </h2>
+
+              <Notifications
+                key={notificationsMountKey}
+                isLecturer={true}
+                refreshTrigger={listRefreshTrigger}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              <div
+                className="glass-card"
+                style={{ border: "1px solid rgba(99,102,241,0.2)" }}
+              >
+                <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "20px" }}>
+                  New Notification
+                </h3>
+                <NotificationForm onNotificationSent={onNotificationSent} />
+              </div>
+
+              <div className="glass-card" style={{ padding: "20px" }}>
+                <h4
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "#64748b",
+                    textTransform: "uppercase",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Support
+                </h4>
+                <p style={{ fontSize: "0.8rem", color: "#94a3b8", margin: 0 }}>
+                  Contact admin for help.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
+
+        {active === "booking" ? <BookingPanel /> : null}
       </main>
     </div>
   );

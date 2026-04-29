@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { ticketService } from '../services/ticketService';
 import { useAuth } from '../context/AuthContext';
 import './CreateTicketPage.css';
@@ -20,7 +20,6 @@ const CreateTicketPage = () => {
         preferredContact: ''
     });
     
-    // Get userId from auth
     const userId = user?.email;
     
     const handleChange = (e) => {
@@ -86,17 +85,20 @@ const CreateTicketPage = () => {
     };
     
     if (!isLoggedIn) {
-        return (
-            <div className="create-ticket-container">
-                <div className="form-card">
-                    <p>Please login to create a ticket.</p>
-                </div>
-            </div>
-        );
+        return <Navigate to="/login" replace />;
     }
     
     return (
         <div className="create-ticket-container">
+
+            {/* ← Back Button */}
+            <button
+                onClick={() => navigate(-1)}
+                className="back-home-btn"
+            >
+                ← Back
+            </button>
+
             <div className="page-header">
                 <h1 className="page-title">Create New Ticket</h1>
                 <p className="page-subtitle">Report an issue or request support</p>

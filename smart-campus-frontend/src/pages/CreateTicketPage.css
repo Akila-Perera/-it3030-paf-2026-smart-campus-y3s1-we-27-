@@ -1,16 +1,41 @@
 /* CreateTicketPage.css */
 
 .create-ticket-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 40px 24px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 32px 48px;
     background-color: #f9fafb;
     min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Back Button */
+.back-home-btn {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: block;
+    width: fit-content;
+    margin: 0 auto 20px auto;
+    transition: all 0.2s;
+}
+
+.back-home-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+    transform: translateX(-2px);
 }
 
 /* Header */
 .page-header {
-    margin-bottom: 32px;
+    max-width: 800px;
+    margin: 0 auto 32px auto;
 }
 
 .page-title {
@@ -33,6 +58,8 @@
     padding: 32px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 /* Form Groups */
@@ -196,20 +223,25 @@
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    .create-ticket-container {
+        padding: 20px 16px;
+    }
+
     .form-card {
         padding: 20px;
+        max-width: 100%;
     }
-    
+
+    .page-header {
+        max-width: 100%;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    
-    .create-ticket-container {
-        padding: 20px 16px;
-    }
-    
+
     .page-title {
         font-size: 24px;
     }

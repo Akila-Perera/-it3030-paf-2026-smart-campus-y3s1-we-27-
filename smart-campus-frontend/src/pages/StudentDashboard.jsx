@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardNav from "../components/DashboardNav";
 import BookingPanel from "../components/BookingPanel";
 import Notifications from "./Notifications";
+import TicketsPage from "./TicketsPage";
+import { useAuth } from "../context/AuthContext";
 import {
   Bell,
   LayoutDashboard,
@@ -12,7 +15,29 @@ import {
 } from "lucide-react";
 
 export default function StudentDashboard({ userEmail, notificationsMountKey }) {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [active, setActive] = useState("dashboard");
+
+  const mapRole = (role) => {
+    switch(role) {
+      case 'STUDENT': return 'USER';
+      case 'LECTURER': return 'TECHNICIAN';
+      case 'ADMIN': return 'ADMIN';
+      default: return 'USER';
+    }
+  };
+
+  const userRole = mapRole(user?.role);
+  const displayName = user?.email?.split("@")[0] || userEmail?.split("@")[0] || "Student";
+  const isTechnician = userRole === 'TECHNICIAN';
+
+  const handleLogout = () => {
+    if (logout) {
+      logout();
+    }
+    navigate("/");
+  };
 
   return (
     <div className="sc-db-wrap">
@@ -48,47 +73,108 @@ export default function StudentDashboard({ userEmail, notificationsMountKey }) {
         </div>
 
         <nav style={{ flex: 1 }}>
+          {/* Dashboard Button */}
           <div
             className={`sc-nav-item ${active === "dashboard" ? "active" : ""}`}
             onClick={() => setActive("dashboard")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "10px 16px",
+              borderRadius: "12px",
+              cursor: "pointer",
+              marginBottom: "4px",
+              background: active === "dashboard" ? "rgba(56, 189, 248, 0.1)" : "transparent",
+              color: active === "dashboard" ? "#38bdf8" : "#94a3b8"
+            }}
           >
-            <LayoutDashboard size={20} color={active === "dashboard" ? "#38bdf8" : undefined} />
-            Dashboard
+            <LayoutDashboard size={20} />
+            <span>Dashboard</span>
           </div>
+
+          {/* Booking Button */}
           <div
             className={`sc-nav-item ${active === "booking" ? "active" : ""}`}
             onClick={() => setActive("booking")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "10px 16px",
+              borderRadius: "12px",
+              cursor: "pointer",
+              marginBottom: "4px",
+              background: active === "booking" ? "rgba(56, 189, 248, 0.1)" : "transparent",
+              color: active === "booking" ? "#38bdf8" : "#94a3b8"
+            }}
           >
-            <Calendar size={20} color={active === "booking" ? "#38bdf8" : undefined} />
-            Booking
+            <Calendar size={20} />
+            <span>Booking</span>
           </div>
 
+          {/* Ticket Button */}
           <div
-            className="sc-nav-item"
-            style={{ marginLeft: 18, paddingLeft: 14, opacity: 0.7, cursor: "default" }}
+            className={`sc-nav-item ${active === "ticket" ? "active" : ""}`}
+            onClick={() => {
+              console.log("Ticket button clicked");
+              setActive("ticket");
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "10px 16px",
+              borderRadius: "12px",
+              cursor: "pointer",
+              marginBottom: "4px",
+              background: active === "ticket" ? "rgba(56, 189, 248, 0.1)" : "transparent",
+              color: active === "ticket" ? "#38bdf8" : "#94a3b8"
+            }}
           >
             <Ticket size={18} />
-            Ticket
+            <span>Ticket</span>
           </div>
+          
+          {isTechnician && (
+            <div style={{ 
+              marginTop: "20px", 
+              padding: "8px 12px", 
+              background: "rgba(56,189,248,0.1)", 
+              borderRadius: "10px",
+              fontSize: "12px",
+              color: "#38bdf8",
+              textAlign: "center"
+            }}>
+              🔧 Technician Mode
+            </div>
+          )}
         </nav>
 
-        <div className="sidebar-bottom">
-          <div className="sc-nav-item logout-btn">
-            <LogOut size={20} />
-            <span>Logout</span>
-          </div>
-        </div>
+        {/* REMOVED LOGOUT BUTTON FROM SIDEBAR - Keep only the one in DashboardNav */}
       </aside>
 
       <main className="sc-main-content">
         <header className="sc-dash-header" style={{ marginBottom: "40px" }}>
           <div>
             <h1 style={{ fontSize: "1.75rem", fontWeight: 800, margin: 0 }}>
-              Student Dashboard
+              {isTechnician ? "Technician Dashboard" : "Student Dashboard"}
             </h1>
             <p style={{ color: "#64748b", fontSize: "0.9rem", marginTop: "4px" }}>
               Welcome back,{" "}
-              <span style={{ color: "#7dd3fc" }}>{userEmail.split("@")[0]}</span>
+              <span style={{ color: "#7dd3fc" }}>{displayName}</span>
+              {isTechnician && (
+                <span style={{ 
+                  marginLeft: "10px", 
+                  background: "#3b82f6", 
+                  padding: "2px 8px", 
+                  borderRadius: "20px",
+                  fontSize: "11px",
+                  color: "white"
+                }}>
+                  Technician
+                </span>
+              )}
             </p>
           </div>
 
@@ -127,16 +213,17 @@ export default function StudentDashboard({ userEmail, notificationsMountKey }) {
                 flexShrink: 0,
               }}
             >
-              {userEmail[0]?.toUpperCase() || "U"}
+              {displayName?.[0]?.toUpperCase() || "U"}
             </div>
           </div>
         </header>
 
         <div style={{ marginBottom: "32px" }}>
-          <DashboardNav userEmail={userEmail} />
+          <DashboardNav userEmail={user?.email || userEmail} />
         </div>
 
-        {active === "dashboard" ? (
+        {/* DASHBOARD VIEW */}
+        {active === "dashboard" && (
           <div className="glass-card" style={{ width: "100%" }}>
             <h2
               style={{
@@ -150,12 +237,19 @@ export default function StudentDashboard({ userEmail, notificationsMountKey }) {
             >
               Campus Feed
             </h2>
-
             <Notifications key={notificationsMountKey} isLecturer={false} />
           </div>
-        ) : null}
+        )}
 
-        {active === "booking" ? <BookingPanel /> : null}
+        {/* BOOKING VIEW */}
+        {active === "booking" && <BookingPanel />}
+
+        {/* TICKET VIEW */}
+        {active === "ticket" && (
+          <div className="glass-card" style={{ width: "100%", padding: "20px" }}>
+            <TicketsPage />
+          </div>
+        )}
       </main>
     </div>
   );

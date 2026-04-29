@@ -8,16 +8,26 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Notifications from "./pages/Notifications";
-import LecturerDashboard from "./pages/LecturerDashboard"; // මේවා අලුතින් එක් කළා
+import LecturerDashboard from "./pages/LecturerDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import { clearStoredUser, getStoredUser } from "./utils/authStorage";
 import "./App.css";
 
+// Import Your Ticket Pages
+import TicketsPage from "./pages/TicketsPage";
+import CreateTicketPage from "./pages/CreateTicketPage";
+import TicketDetailPage from "./pages/TicketDetailPage";
+import TicketAdminDashboard from "./pages/TicketAdminDashboard";
+
 function AppRoutes() {
   return (
     <Routes>
+      {/* Public Routes */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/notifications" element={<Notifications />} />
+
+      {/* Protected Routes */}
       <Route
         path="/admindashboard"
         element={
@@ -34,10 +44,58 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      {/* ඔයා අලුතින් හදපු පේජ් වලට Routes මෙතන තියෙනවා */}
-      <Route path="/lecturer-dashboard" element={<ProtectedRoute><LecturerDashboard /></ProtectedRoute>} />
-      <Route path="/student-dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
-      <Route path="/notifications" element={<Notifications />} />
+      
+      {/* Friend's Dashboard Routes */}
+      <Route 
+        path="/lecturer-dashboard" 
+        element={
+          <ProtectedRoute>
+            <LecturerDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/student-dashboard" 
+        element={
+          <ProtectedRoute>
+            <StudentDashboard />
+          </ProtectedRoute>
+        } 
+      />
+
+      {/* ========== YOUR TICKET ROUTES ========== */}
+      <Route 
+        path="/tickets" 
+        element={
+          <ProtectedRoute>
+            <TicketsPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/tickets/create" 
+        element={
+          <ProtectedRoute>
+            <CreateTicketPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/tickets/:ticketId" 
+        element={
+          <ProtectedRoute>
+            <TicketDetailPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/ticket-admin" 
+        element={
+          <ProtectedRoute>
+            <TicketAdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
     </Routes>
   );
 }

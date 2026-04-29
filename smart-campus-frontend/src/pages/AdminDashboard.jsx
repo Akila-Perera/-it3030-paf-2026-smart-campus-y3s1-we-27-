@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { BookOpen, LayoutDashboard, LogOut } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { BookOpen, LayoutDashboard, LogOut, Ticket } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getStoredUser } from "../utils/authStorage";
 import { DASHBOARD_STYLES } from "../styles/dashboardStyles";
 import ResourceAdminPanel from "../components/ResourceAdminPanel";
 import AdminBookingPanel from "../components/AdminBookingPanel";
+import TicketAdminDashboard from "../pages/TicketAdminDashboard";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export default function AdminDashboard() {
   const title = useMemo(() => {
     if (active === "resources") return "Admin Dashboard · Resources";
     if (active === "bookings") return "Admin Dashboard · Booking Requests";
+    if (active === "tickets") return "Admin Dashboard · Ticket Analytics";
     return "Admin Dashboard";
   }, [active]);
 
@@ -90,6 +92,13 @@ export default function AdminDashboard() {
             <LayoutDashboard size={20} color={active === "bookings" ? "#a78bfa" : undefined} />
             Booking Requests
           </div>
+          <div
+            className={`sc-nav-item ${active === "tickets" ? "active" : ""}`}
+            onClick={() => setActive("tickets")}
+          >
+            <Ticket size={20} color={active === "tickets" ? "#a78bfa" : undefined} />
+            Ticket Analytics
+          </div>
         </nav>
 
         <div className="sidebar-bottom">
@@ -112,8 +121,9 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        {active === "resources" ? <ResourceAdminPanel /> : null}
-        {active === "bookings" ? <AdminBookingPanel /> : null}
+        {active === "resources" && <ResourceAdminPanel />}
+        {active === "bookings" && <AdminBookingPanel />}
+        {active === "tickets" && <TicketAdminDashboard />}
       </main>
     </div>
   );

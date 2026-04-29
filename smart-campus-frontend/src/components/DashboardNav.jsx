@@ -77,7 +77,7 @@ export default function DashboardNav({ userEmail = "" }) {
               letterSpacing: "0.04em",
             }}
           >
-            Member 4 · Notifications
+            Notifications
           </span>
         </div>
       </div>

@@ -7,10 +7,8 @@ import {
   Bell,
   Calendar,
   LayoutDashboard,
-  LogOut,
   Megaphone,
   Search,
-  Ticket,
 } from "lucide-react";
 
 export default function LecturerDashboard({
@@ -69,22 +67,10 @@ export default function LecturerDashboard({
             <Calendar size={20} color={active === "booking" ? "#a78bfa" : undefined} />
             Booking
           </div>
-
-          <div
-            className="sc-nav-item"
-            style={{ marginLeft: 18, paddingLeft: 14, opacity: 0.7, cursor: "default" }}
-          >
-            <Ticket size={18} />
-            Ticket
-          </div>
+          {/* REMOVED Ticket button - not connected to lecturer */}
         </nav>
 
-        <div className="sidebar-bottom">
-          <div className="sc-nav-item logout-btn">
-            <LogOut size={20} />
-            <span>Logout</span>
-          </div>
-        </div>
+        {/* Removed duplicate logout button */}
       </aside>
 
       <main className="sc-main-content">

@@ -14,7 +14,11 @@ export default function Dashboard() {
   const localUser = getStoredUser();
   const isAdmin = localUser?.role === "ADMIN" || user?.role === "ADMIN";
   const userEmail = (localUser?.email || user?.email || "").toString().trim().toLowerCase();
-  const isLecturer = !userEmail.endsWith("@my.sliit.lk");
+  
+  // REAL ROLE DETECTION - Based on email domain
+  const isStudent = userEmail.endsWith("@my.sliit.lk");
+  const isLecturer = !isStudent;
+  
   const notificationsMountKey = user?.sub || user?.email || "notifications-default";
 
   // --- Style Injection ---

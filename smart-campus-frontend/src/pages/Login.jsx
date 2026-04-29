@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getStoredUser, setStoredUser } from "../utils/authStorage";
 
@@ -140,17 +140,21 @@ const features = [
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, isLoggedIn } = useAuth();
 
   const [adminUsername, setAdminUsername] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState("");
 
+  // Get the redirect path from location state (default to dashboard)
+  const from = location.state?.from || "/dashboard";
+
   const nextPathForUser = useMemo(() => {
     const u = getStoredUser();
     if (u?.role === "ADMIN") return "/admindashboard";
-    return "/dashboard";
-  }, []);
+    return from; // Use the stored redirect path
+  }, [from]);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -169,10 +173,12 @@ export default function Login() {
         email: decoded.email ?? "",
         picture: decoded.picture ?? "",
         sub: decoded.sub ?? "",
+        role: "STUDENT", // Default role for Google login
       };
       setStoredUser(user);
       login();
-      navigate("/dashboard", { replace: true });
+      // Redirect to the intended page (tickets or dashboard)
+      navigate(from, { replace: true });
     } catch (err) {
       console.error("Failed to decode Google credential:", err);
     }
@@ -196,7 +202,7 @@ export default function Login() {
       };
       setStoredUser(adminUser);
       login();
-      navigate("/admindashboard", { replace: true });
+      navigate(from, { replace: true });
       return;
     }
 
